@@ -8,5 +8,18 @@
   "keywords": [],
   "author": "IranAmus",
   "license": "MIT",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "@prisma/client": "^7.8.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "helmet": "^8.2.0",
+    "morgan": "^1.11.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/morgan": "^1.9.10",
+    "prisma": "^7.8.0"
+  }
 }
