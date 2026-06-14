@@ -23,6 +23,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/morgan": "^1.9.10",
     "prisma": "^6.19.3",
