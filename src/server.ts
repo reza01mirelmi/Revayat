@@ -4,6 +4,7 @@ import { connectDB, disconnectDB } from "./config/db";
 
 const PORT = process.env.PORT || 5000;
 
+// Connecting to the database
 const startServer = async () => {
   try {
     await connectDB();
