@@ -56,12 +56,13 @@ model Tag {
 }
 
 model Post {
-  id         String   @id @default(uuid())
+  id         String     @id @default(uuid())
   title      String
   content    String
-  viewsCount Int      @default(0)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  viewsCount Int        @default(0)
+  status     PostStatus @default(DRAFT)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 
   userId     String
   categoryId String
@@ -72,6 +73,12 @@ model Post {
   likes     Like[]
   bookmarks Bookmark[]
   tags      Tag[]
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  BANNED
 }
 
 model Comment {
