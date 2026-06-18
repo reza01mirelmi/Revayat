@@ -3,12 +3,16 @@ import routes from "./routes";
 import errorHandler from "./middlewares/error.middleware";
 import helmet from "helmet";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
 // Security
 app.use(helmet());
 app.use(cors());
+
+ // Parse cookies
+app.use(cookieParser());
 
 // Body parsing
 app.use(express.json());
