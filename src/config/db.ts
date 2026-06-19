@@ -6,23 +6,27 @@ const prisma = new PrismaClient({
       ? ["query", "error", "warn"]
       : ["error"],
 });
-
 const connectDB = async () => {
   try {
     await prisma.$connect();
     console.log("DB Connected via Prisma");
   } catch (error) {
     if (error instanceof Error) {
-      console.log(`Database connection error : ${error.message}`);
+      console.log(`Database connection error: ${error.message}`);
     } else {
-      console.log("Database connection error: ", error);
+      console.log("Database connection error:", error);
     }
     process.exit(1);
   }
 };
 
 const disconnectDB = async () => {
-  await prisma.$disconnect();
+  try {
+    await prisma.$disconnect();
+    console.log("DB Disconnected");
+  } catch (error) {
+    console.log("Error during DB disconnect:", error);
+  }
 };
 
 export { prisma, connectDB, disconnectDB };

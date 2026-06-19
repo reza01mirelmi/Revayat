@@ -18,7 +18,15 @@ const startServer = async () => {
 };
 
 // Graceful shutdown
+process.on("SIGINT", async () => {
+  console.log("SIGINT received...");
+  await disconnectDB();
+  console.log("DB disconnected");
+  process.exit(0);
+});
+
 process.on("SIGTERM", async () => {
+  console.log("SIGTERM received...");
   await disconnectDB();
   process.exit(0);
 });

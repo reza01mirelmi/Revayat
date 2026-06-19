@@ -4,14 +4,16 @@ import errorHandler from "./middlewares/error.middleware";
 import helmet from "helmet";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { globalLimiter } from "./middlewares/rateLimit.middleware";
 
 const app = express();
 
 // Security
 app.use(helmet());
 app.use(cors());
+app.use(globalLimiter);
 
- // Parse cookies
+// Parse cookies
 app.use(cookieParser());
 
 // Body parsing
