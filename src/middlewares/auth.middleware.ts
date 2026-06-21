@@ -18,8 +18,31 @@ export const protect = async (
     }
 
     const token = authHeader.split(" ")[1];
-
     const payload = verifyAccessToken(token);
+
+    if (!payload?.userId) {
+      return res.status(401).json({
+        status: "error",
+        message: "Invalid token",
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId },
+      select: { id: true, isActive: true, isBanned: true },
+    });
+
+    if (!user?.isActive) {
+      return res
+        .status(401)
+        .json({ status: "error", message: "Account is deactivated" });
+    }
+
+    if (user?.isBanned) {
+      return res
+        .status(403)
+        .json({ status: "error", message: "Account is banned" });
+    }
 
     req.userId = payload.userId;
 
