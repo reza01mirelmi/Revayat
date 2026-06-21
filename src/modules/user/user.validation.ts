@@ -79,7 +79,15 @@ export const changePasswordSchema = z
     path: ["confirmPassword"],
   });
 
+// Update user role by admin
+export const updateRoleSchema = z.object({
+  role: z.enum(["USER", "ADMIN"], {
+    message: "Role must be USER or ADMIN",
+  }),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+export type UpdateRoleInput = z.infer<typeof updateRoleSchema>;
