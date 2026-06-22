@@ -19,7 +19,9 @@ export const getUserProfileService = async (username: string) => {
   return user;
 };
 
-// Receive user posts
+/**
+ * Receive user posts
+ */
 export const getUserPostsService = async (username: string) => {
   const user = await prisma.user.findUnique({
     where: { username },
@@ -41,7 +43,9 @@ export const getUserPostsService = async (username: string) => {
   return user.posts;
 };
 
-// Self profile update service
+/**
+ * Self profile update service
+ */
 export const updateMyProfileService = async (
   userId: string,
   data: UpdateProfileInput,
@@ -68,8 +72,9 @@ export const updateMyProfileService = async (
   return updateUser;
 };
 
-// Allows authenticated user to change their password
-
+/**
+ * Allows authenticated user to change their password
+ */
 export const changePasswordService = async (
   userId: string,
   data: ChangePasswordInput,
@@ -94,7 +99,9 @@ export const changePasswordService = async (
   });
 };
 
-// Soft delete: deactivates user account and removes refresh token
+/**
+ * Soft delete: deactivates user account and removes refresh token
+ */
 export const deleteMyAccountService = async (userId: string) => {
   await prisma.user.update({
     where: { id: userId },
@@ -106,7 +113,9 @@ export const deleteMyAccountService = async (userId: string) => {
   });
 };
 
-// Get all users with pagination (Admin only)
+/**
+ * Get all users with pagination (Admin only)
+ */
 export const getAllUsersService = async (
   page: number,
   limit: number,
@@ -145,7 +154,9 @@ export const getAllUsersService = async (
   };
 };
 
-// Get a single user by ID (Admin only)
+/**
+ * Get a single user by ID (Admin only)
+ */
 export const getUserByIdService = async (userId: string) => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -182,7 +193,9 @@ export const getUserByIdService = async (userId: string) => {
   return user;
 };
 
-// Update user role (Admin only)
+/**
+ * Update user role (Admin only)
+ */
 export const updateUserRoleService = async (
   userId: string,
   role: UpdateRoleInput,
@@ -209,6 +222,9 @@ export const updateUserRoleService = async (
   return updateRole;
 };
 
+/**
+ * Ban And Unban a user by ID (Admin only)
+ */
 export const toggleBanUserService = async (
   userId: string,
   isBanned: boolean,
@@ -231,6 +247,9 @@ export const toggleBanUserService = async (
   });
 };
 
+/**
+ * Permanently delete a user by ID (Admin only)
+ */
 export const deleteUserService = async (userId: string) => {
   const user = await prisma.user.findUnique({ where: { id: userId } });
 

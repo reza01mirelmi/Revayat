@@ -43,12 +43,17 @@ export const updatePostSchema = z
       .array(z.string().uuid("Tag ID is not valid"))
       .max(5, "You can add up to 5 tags")
       .optional(),
-
-    status: z.enum(["DRAFT", "PUBLISHED", "BANNED"]).optional(),
   })
   .refine((data) => Object.keys(data).length > 0, {
     message: "At least one field is required for update",
   });
 
+export const updatePostStatusSchema = z.object({
+  status: z.enum(["DRAFT", "PUBLISHED", "BANNED"], {
+    message: "Status must be DRAFT, PUBLISHED or BANNED",
+  }),
+});
+
 export type CreatePostInput = z.infer<typeof createPostSchema>;
 export type UpdatePostInput = z.infer<typeof updatePostSchema>;
+export type UpdatePostStatusInput = z.infer<typeof updatePostStatusSchema>;
