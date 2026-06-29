@@ -2,7 +2,10 @@ import { Request, Response, NextFunction } from "express";
 import {
   createPostService,
   deletePostService,
+  getAllPostsService,
   getMyPostsService,
+  getPostByIdService,
+  getPostsByFilterService,
   updatePostService,
 } from "./post.service";
 import { AppError } from "../../errors/AppError";
@@ -92,6 +95,103 @@ export const deletePost = async (
       message: "Post successfully deleted",
     });
   } catch (error: unknown) {
+    next(error);
+  }
+};
+
+export const getAllPosts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const search =
+      typeof req.query.search === "string" ? req.query.search : undefined;
+
+    const posts = await getAllPostsService(page, limit, search);
+
+    res.status(200).json({
+      status: "success",
+      data: posts,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getPostById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { id } = req.params as { id: string };
+
+    const post = await getPostByIdService(id);
+
+    res.status(200).json({
+      status: "success",
+      data: post,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getPostsByCategory = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { categorySlug } = req.params as { categorySlug: string };
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const search =
+      typeof req.query.search === "string" ? req.query.search : undefined;
+
+    const posts = await getPostsByFilterService(
+      { categorySlug },
+      page,
+      limit,
+      search,
+    );
+
+    res.status(200).json({
+      status: "success",
+      data: posts,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getPostsByTag = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { tagSlug } = req.params as { tagSlug: string };
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const search =
+      typeof req.query.search === "string" ? req.query.search : undefined;
+
+    const posts = await getPostsByFilterService(
+      { tagSlug },
+      page,
+      limit,
+      search,
+    );
+
+    res.status(200).json({
+      status: "success",
+      data: posts,
+    });
+  } catch (error) {
     next(error);
   }
 };
