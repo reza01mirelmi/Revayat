@@ -76,8 +76,15 @@ export const getMyPostsService = async (
       where: { userId },
       skip,
       take: limit,
-      omit: {
-        updatedAt: true,
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        status: true,
+        viewsCount: true,
+        createdAt: true,
+        category: { select: { id: true, name: true, slug: true } },
+        tags: { select: { id: true, name: true, slug: true } },
       },
       orderBy: { createdAt: "desc" },
     }),
@@ -153,28 +160,31 @@ export const updatePostService = async (
 };
 
 /**
- * Delete a post owned by the authenticated user.
+ * Delete a post. If userId is provided, only deletes if owned by that user.
+ * If userId is omitted (admin use), deletes the post regardless of owner.
  */
-export const deletePostService = async (userId: string, id: string) => {
+export const deletePostService = async (id: string, userId?: string) => {
   const post = await prisma.post.findUnique({
-    where: { id, userId },
+    where: userId ? { id, userId } : { id },
   });
 
   if (!post) throw new AppError("Post not found", 404);
 
-  await prisma.post.delete({ where: { id, userId } });
+  await prisma.post.delete({ where: { id } });
 };
 
 /**
- * Get paginated list of published posts (public).
+ * Get paginated list of posts.
+ * If isAdmin is true, returns posts with any status; otherwise only PUBLISHED.
  */
 export const getAllPostsService = async (
   page: number,
   limit: number,
   search?: string,
+  isAdmin?: boolean,
 ) => {
   const where = {
-    status: PostStatus.PUBLISHED,
+    ...(!isAdmin && { status: PostStatus.PUBLISHED }),
     ...(search
       ? {
           OR: [
@@ -196,6 +206,7 @@ export const getAllPostsService = async (
         id: true,
         title: true,
         content: true,
+        status: true,
         viewsCount: true,
         createdAt: true,
         category: { select: { id: true, name: true, slug: true } },
@@ -219,7 +230,7 @@ export const getAllPostsService = async (
  * Get a single post by its ID.
  */
 export const getPostByIdService = async (id: string) => {
-  const post = await prisma.post.findFirst({
+  const post = await prisma.post.findUnique({
     where: { id, status: PostStatus.PUBLISHED },
     select: {
       id: true,
@@ -302,4 +313,62 @@ export const getPostsByFilterService = async (
     limit,
     totalPages: Math.ceil(total / limit),
   };
+};
+
+/**
+ * Get up to 5 related posts based on shared category or tags.
+ */
+export const getRelatedPostsService = async (postId: string) => {
+  const currentPost = await prisma.post.findUnique({
+    where: { id: postId },
+    select: {
+      categoryId: true,
+      tags: { select: { id: true } },
+    },
+  });
+
+  if (!currentPost) throw new AppError("Post not found", 404);
+
+  const tagsId = currentPost.tags.map((t) => t.id);
+
+  const relatedPosts = await prisma.post.findMany({
+    where: {
+      id: { not: postId },
+      status: PostStatus.PUBLISHED,
+      OR: [
+        { categoryId: currentPost.categoryId },
+        { tags: { some: { id: { in: tagsId } } } },
+      ],
+    },
+    take: 5,
+    select: {
+      id: true,
+      title: true,
+      viewsCount: true,
+      createdAt: true,
+      author: { select: { username: true, avatarUrl: true } },
+    },
+  });
+
+  return relatedPosts;
+};
+
+/**
+ * Update post status (Admin only).
+ */
+export const updatePostStatusService = async (
+  postId: string,
+  status: UpdatePostStatusInput["status"],
+) => {
+  const post = await prisma.post.findUnique({ where: { id: postId } });
+
+  if (!post) throw new AppError("Post not found", 404);
+
+  const updatedPost = await prisma.post.update({
+    where: { id: postId },
+    data: { status },
+    select: { id: true, title: true, status: true },
+  });
+
+  return updatedPost;
 };

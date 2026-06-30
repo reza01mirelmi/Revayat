@@ -1,15 +1,21 @@
 import { Request, Response, NextFunction } from "express";
 import {
   createPostService,
+  getMyPostsService,
+  updatePostService,
   deletePostService,
   getAllPostsService,
-  getMyPostsService,
   getPostByIdService,
   getPostsByFilterService,
-  updatePostService,
+  getRelatedPostsService,
+  updatePostStatusService,
 } from "./post.service";
 import { AppError } from "../../errors/AppError";
-import { CreatePostInput, UpdatePostInput } from "./post.validation";
+import {
+  CreatePostInput,
+  UpdatePostInput,
+  UpdatePostStatusInput,
+} from "./post.validation";
 
 export const createPost = async (
   req: Request,
@@ -88,7 +94,7 @@ export const deletePost = async (
     const userId = req.userId;
     const { id } = req.params as { id: string };
 
-    await deletePostService(userId, id);
+    await deletePostService(id, userId);
 
     res.status(200).json({
       status: "success",
@@ -110,7 +116,7 @@ export const getAllPosts = async (
     const search =
       typeof req.query.search === "string" ? req.query.search : undefined;
 
-    const posts = await getAllPostsService(page, limit, search);
+    const posts = await getAllPostsService(page, limit, search, false);
 
     res.status(200).json({
       status: "success",
@@ -192,6 +198,87 @@ export const getPostsByTag = async (
       data: posts,
     });
   } catch (error) {
+    next(error);
+  }
+};
+
+export const getRelatedPosts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { postId } = req.params as { postId: string };
+
+    const relatedPosts = await getRelatedPostsService(postId);
+
+    res.status(200).json({
+      status: "success",
+      data: relatedPosts,
+    });
+  } catch (error: unknown) {
+    next(error);
+  }
+};
+
+export const getAllPostsAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const search =
+      typeof req.query.search === "string" ? req.query.search : undefined;
+
+    const posts = await getAllPostsService(page, limit, search, true);
+
+    res.status(200).json({
+      status: "success",
+      data: posts,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deletePostAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { id } = req.params as { id: string };
+
+    await deletePostService(id);
+
+    res.status(200).json({
+      status: "success",
+      message: "Post successfully deleted",
+    });
+  } catch (error: unknown) {
+    next(error);
+  }
+};
+
+export const updatePostStatus = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { id } = req.params as { id: string };
+    const { status } = req.body as UpdatePostStatusInput;
+
+    const post = await updatePostStatusService(id, status);
+
+    res.status(200).json({
+      status: "success",
+      message: "Post status updated successfully",
+      data: post,
+    });
+  } catch (error: unknown) {
     next(error);
   }
 };
