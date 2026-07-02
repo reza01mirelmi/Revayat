@@ -13,7 +13,11 @@ import {
   deleteUser,
 } from "./user.controller";
 import { validate } from "../../middlewares/validate.middleware";
-import { updateProfileSchema, changePasswordSchema } from "./user.validation";
+import {
+  updateProfileSchema,
+  changePasswordSchema,
+  updateRoleSchema,
+} from "./user.validation";
 import { protect, restrictTo } from "./../../middlewares/auth.middleware";
 import { validateId } from "../../middlewares/validateId.middleware";
 const router = Router();
@@ -42,6 +46,7 @@ router.get(
 router.patch(
   "/admin/users/:id/role",
   protect,
+  validate(updateRoleSchema),
   restrictTo("ADMIN"),
   validateId,
   updateUserRole,
