@@ -40,8 +40,8 @@ export const createPostService = async (
       userId,
       tags: data.tags
         ? {
-            connect: data.tags.map((id) => ({ id })),
-          }
+          connect: data.tags.map((id) => ({ id })),
+        }
         : undefined,
     },
     select: {
@@ -139,8 +139,8 @@ export const updatePostService = async (
       ...(data.tags !== undefined && {
         tags: data.tags
           ? {
-              set: data.tags.map((id) => ({ id })),
-            }
+            set: data.tags.map((id) => ({ id })),
+          }
           : undefined,
       }),
     },
@@ -187,11 +187,11 @@ export const getAllPostsService = async (
     ...(!isAdmin && { status: PostStatus.PUBLISHED }),
     ...(search
       ? {
-          OR: [
-            { title: { contains: search, mode: "insensitive" as const } },
-            { content: { contains: search, mode: "insensitive" as const } },
-          ],
-        }
+        OR: [
+          { title: { contains: search, mode: "insensitive" as const } },
+          { content: { contains: search, mode: "insensitive" as const } },
+        ],
+      }
       : {}),
   };
   const skip = (page - 1) * limit;
@@ -276,11 +276,11 @@ export const getPostsByFilterService = async (
     ...(filter.tagSlug && { tags: { some: { slug: filter.tagSlug } } }),
     ...(search
       ? {
-          OR: [
-            { title: { contains: search, mode: "insensitive" as const } },
-            { content: { contains: search, mode: "insensitive" as const } },
-          ],
-        }
+        OR: [
+          { title: { contains: search, mode: "insensitive" as const } },
+          { content: { contains: search, mode: "insensitive" as const } },
+        ],
+      }
       : {}),
   };
 
