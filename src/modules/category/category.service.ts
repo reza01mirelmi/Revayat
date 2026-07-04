@@ -1,4 +1,5 @@
 import { AppError } from "../../errors/AppError";
+import { PostStatus } from "../../generated/prisma";
 import { prisma } from "./../../config/db";
 import {
   CreateCategoryInput,
@@ -23,7 +24,13 @@ export const getAllCategoriesService = async () => {
 /**
  * Get a category by its slug (public).
  */
-export const getCategoryBySlugService = async (slug: string) => {
+export const getCategoryBySlugService = async (
+  slug: string,
+  page: number,
+  limit: number,
+) => {
+  const skip = (page - 1) * limit;
+
   const category = await prisma.category.findUnique({
     where: { slug },
     select: {
@@ -31,12 +38,23 @@ export const getCategoryBySlugService = async (slug: string) => {
       name: true,
       slug: true,
       posts: {
+        where: {
+          status: PostStatus.PUBLISHED,
+        },
+        skip,
+        take: limit,
         select: {
           id: true,
           title: true,
-          content: true,
+          status: true,
           viewsCount: true,
           createdAt: true,
+        },
+        orderBy: { createdAt: "desc" },
+      },
+      _count: {
+        select: {
+          posts: { where: { status: PostStatus.PUBLISHED } },
         },
       },
     },
@@ -44,13 +62,33 @@ export const getCategoryBySlugService = async (slug: string) => {
 
   if (!category) throw new AppError("Category not found", 404);
 
-  return category;
+  const total = category._count.posts;
+
+  return {
+    category: {
+      id: category.id,
+      name: category.name,
+      slug: category.slug,
+      posts: category.posts,
+    },
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
 };
 
 /**
  * Create a new category (Admin only).
  */
 export const createCategoryService = async (data: CreateCategoryInput) => {
+  const existing = await prisma.category.findFirst({
+    where: { OR: [{ name: data.name }, { slug: data.slug }] },
+  });
+
+  if (existing)
+    throw new AppError("Category with this name or slug already exists", 409);
+
   const category = await prisma.category.create({
     data,
     select: {

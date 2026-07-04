@@ -208,9 +208,9 @@ export const getRelatedPosts = async (
   next: NextFunction,
 ) => {
   try {
-    const { postId } = req.params as { postId: string };
+    const { id } = req.params as { id: string };
 
-    const relatedPosts = await getRelatedPostsService(postId);
+    const relatedPosts = await getRelatedPostsService(id);
 
     res.status(200).json({
       status: "success",

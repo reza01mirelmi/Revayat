@@ -1,16 +1,13 @@
 import { Router } from "express";
 import {
-  getAllCategories,
-  getCategoryBySlug,
-  createCategory,
-  updateCategory,
-  deleteCategory,
-} from "./category.controller";
+  getAllTags,
+  getTagBySlug,
+  createTag,
+  updateTag,
+  deleteTag,
+} from "./tag.controller";
 import { validate } from "../../middlewares/validate.middleware";
-import {
-  createCategorySchema,
-  updateCategorySchema,
-} from "./category.validation";
+import { createTagSchema, updateTagSchema } from "./tag.validation";
 import { protect, restrictTo } from "../../middlewares/auth.middleware";
 import { validateId } from "../../middlewares/validateId.middleware";
 
@@ -18,30 +15,30 @@ const router = Router();
 
 // ===== Admin Routes =====
 router.post(
-  "/admin/categories",
+  "/admin/tags",
   protect,
   restrictTo("ADMIN"),
-  validate(createCategorySchema),
-  createCategory,
+  validate(createTagSchema),
+  createTag,
 );
 router.patch(
-  "/admin/categories/:id",
+  "/admin/tags/:id",
   protect,
   restrictTo("ADMIN"),
   validateId,
-  validate(updateCategorySchema),
-  updateCategory,
+  validate(updateTagSchema),
+  updateTag,
 );
 router.delete(
-  "/admin/categories/:id",
+  "/admin/tags/:id",
   protect,
   restrictTo("ADMIN"),
   validateId,
-  deleteCategory,
+  deleteTag,
 );
 
 // ===== Public Routes =====
-router.get("/", getAllCategories);
-router.get("/:slug", getCategoryBySlug);
+router.get("/", getAllTags);
+router.get("/:slug", getTagBySlug);
 
 export default router;

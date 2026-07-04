@@ -79,7 +79,6 @@ export const getMyPostsService = async (
       select: {
         id: true,
         title: true,
-        content: true,
         status: true,
         viewsCount: true,
         createdAt: true,
@@ -205,7 +204,6 @@ export const getAllPostsService = async (
       select: {
         id: true,
         title: true,
-        content: true,
         status: true,
         viewsCount: true,
         createdAt: true,
@@ -295,7 +293,6 @@ export const getPostsByFilterService = async (
       select: {
         id: true,
         title: true,
-        content: true,
         viewsCount: true,
         createdAt: true,
         category: { select: { id: true, name: true, slug: true } },
