@@ -15,3 +15,15 @@ export const validateId = (
 
   next();
 };
+
+export const validateParamId = (paramName: string) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    const result = z.string().uuid().safeParse(req.params[paramName]);
+
+    if (!result.success) {
+      return next(new AppError(`Invalid ${paramName} format`, 400));
+    }
+
+    next();
+  };
+};
