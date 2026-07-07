@@ -14,4 +14,5 @@ router.use("/posts", postRoutes);
 router.use("/posts", commentRoutes);
 router.use("/categories", categoryRoutes);
 router.use("/tags", tagRoutes);
+
 export default router;

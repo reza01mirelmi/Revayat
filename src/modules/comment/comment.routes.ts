@@ -13,16 +13,25 @@ import { validateParamId } from "../../middlewares/validateId.middleware";
 
 const router = Router();
 
+// ===== Admin Routes =====
+router.delete(
+  "/admin/comments/:id",
+  protect,
+  restrictTo("ADMIN"),
+  validateParamId("id"),
+  deleteCommentAdmin,
+);
+
 // ===== User Routes =====
 router.post(
-  "/:postId",
+  "/:postId/comments",
   protect,
   validateParamId("postId"),
   validate(createCommentSchema),
   createComment,
 );
 router.patch(
-  "/:postId/:id",
+  "/:postId/comments/:id",
   protect,
   validateParamId("postId"),
   validateParamId("id"),
@@ -30,23 +39,15 @@ router.patch(
   updateComment,
 );
 router.delete(
-  "/:postId/:id",
+  "/:postId/comments/:id",
   protect,
   validateParamId("postId"),
   validateParamId("id"),
   deleteComment,
 );
 
-// ===== Admin Routes =====
-router.delete(
-  "/admin/:id",
-  protect,
-  restrictTo("ADMIN"),
-  validateParamId("id"),
-  deleteCommentAdmin,
-);
 
 // ===== Public Routes =====
-router.get("/:postId", validateParamId("postId"), getAllComments);
+router.get("/:postId/comments", validateParamId("postId"), getAllComments);
 
 export default router;
