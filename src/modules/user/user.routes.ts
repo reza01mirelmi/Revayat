@@ -12,6 +12,7 @@ import {
   unbanUser,
   deleteUser,
 } from "./user.controller";
+import { getMyBookmarks } from "../bookmark/bookmark.controller";
 import { validate } from "../../middlewares/validate.middleware";
 import {
   updateProfileSchema,
@@ -46,9 +47,9 @@ router.get(
 router.patch(
   "/admin/users/:id/role",
   protect,
-  validate(updateRoleSchema),
   restrictTo("ADMIN"),
   validateId,
+  validate(updateRoleSchema),
   updateUserRole,
 );
 
@@ -77,6 +78,7 @@ router.delete(
 );
 
 // Public Routes
+router.get("/me/bookmarks", protect, getMyBookmarks);
 router.get("/:username", getUserProfile);
 router.get("/:username/posts", getUserPosts);
 
