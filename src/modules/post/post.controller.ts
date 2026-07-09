@@ -46,8 +46,8 @@ export const getMyPosts = async (
   try {
     if (!req.userId) throw new AppError("Unauthorized", 401);
 
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 10;
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 50);
 
     const posts = await getMyPostsService(req.userId, page, limit);
 
@@ -111,8 +111,8 @@ export const getAllPosts = async (
   next: NextFunction,
 ) => {
   try {
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 10;
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 50);
     const search =
       typeof req.query.search === "string" ? req.query.search : undefined;
 
@@ -122,7 +122,7 @@ export const getAllPosts = async (
       status: "success",
       data: posts,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     next(error);
   }
 };
@@ -141,7 +141,7 @@ export const getPostById = async (
       status: "success",
       data: post,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     next(error);
   }
 };
@@ -153,8 +153,8 @@ export const getPostsByCategory = async (
 ) => {
   try {
     const { categorySlug } = req.params as { categorySlug: string };
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 10;
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 50);
     const search =
       typeof req.query.search === "string" ? req.query.search : undefined;
 
@@ -169,7 +169,7 @@ export const getPostsByCategory = async (
       status: "success",
       data: posts,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     next(error);
   }
 };
@@ -181,8 +181,8 @@ export const getPostsByTag = async (
 ) => {
   try {
     const { tagSlug } = req.params as { tagSlug: string };
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 10;
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 50);
     const search =
       typeof req.query.search === "string" ? req.query.search : undefined;
 
@@ -197,7 +197,7 @@ export const getPostsByTag = async (
       status: "success",
       data: posts,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     next(error);
   }
 };
@@ -227,8 +227,8 @@ export const getAllPostsAdmin = async (
   next: NextFunction,
 ) => {
   try {
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 10;
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 50);
     const search =
       typeof req.query.search === "string" ? req.query.search : undefined;
 
@@ -238,7 +238,7 @@ export const getAllPostsAdmin = async (
       status: "success",
       data: posts,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     next(error);
   }
 };

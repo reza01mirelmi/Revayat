@@ -114,8 +114,8 @@ export const getAllUsers = async (
   next: NextFunction,
 ) => {
   try {
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 10;
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 50);
     const search =
       typeof req.query.search === "string" ? req.query.search : undefined;
 
