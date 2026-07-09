@@ -6,6 +6,7 @@ import {
   refreshService,
   registerService,
 } from "./auth.service";
+import { AppError } from "../../errors/AppError";
 
 const cookieOptions = {
   httpOnly: true,
@@ -107,6 +108,7 @@ export const getMe = async (
   next: NextFunction,
 ) => {
   try {
+    if (!req.userId) throw new AppError("Unauthorized", 401);
     const userId = req.userId;
     const user = await getMeService(userId);
 
