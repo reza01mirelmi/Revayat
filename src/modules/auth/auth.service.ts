@@ -76,6 +76,9 @@ export const loginService = async (data: LoginInput) => {
     throw new AppError("Invalid email or password", 401);
   }
 
+  if (!user.isActive) throw new AppError("Account is deactivated", 403);
+  if (user.isBanned) throw new AppError("Account is banned", 403);
+
   await prisma.refreshToken.deleteMany({
     where: { userId: user.id },
   });
