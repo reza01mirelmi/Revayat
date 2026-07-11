@@ -29,47 +29,62 @@ export const protect = async (
 
     const user = await prisma.user.findUnique({
       where: { id: payload.userId },
-      select: { id: true, isActive: true, isBanned: true },
+      select: { id: true, isActive: true, isBanned: true, role: true },
     });
 
-    if (!user?.isActive) {
-      return res
-        .status(401)
-        .json({ status: "error", message: "Account is deactivated" });
+    if (!user) {
+      return res.status(401).json({
+        status: "error",
+        message: "User not found",
+      });
     }
 
-    if (user?.isBanned) {
-      return res
-        .status(403)
-        .json({ status: "error", message: "Account is banned" });
+    if (!user.isActive) {
+      return res.status(401).json({
+        status: "error",
+        message: "Account is deactivated",
+      });
+    }
+
+    if (user.isBanned) {
+      return res.status(403).json({
+        status: "error",
+        message: "Account is banned",
+      });
     }
 
     req.userId = payload.userId;
+    req.userRole = user.role;
 
     next();
   } catch (error: unknown) {
+    if (error instanceof Error && error.name === "TokenExpiredError") {
+      return res.status(401).json({
+        status: "error",
+        message: "Token expired",
+      });
+    }
+
+    if (error instanceof Error && error.name === "JsonWebTokenError") {
+      return res.status(401).json({
+        status: "error",
+        message: "Invalid token",
+      });
+    }
+
     next(error);
   }
 };
 
 export const restrictTo = (...roles: string[]) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const user = await prisma.user.findUnique({
-        where: { id: req.userId },
-        select: { role: true },
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.userRole || !roles.includes(req.userRole)) {
+      return res.status(403).json({
+        status: "error",
+        message: "You do not have permission",
       });
-
-      if (!user || !roles.includes(user.role)) {
-        return res.status(403).json({
-          status: "error",
-          message: "You do not have permission",
-        });
-      }
-
-      next();
-    } catch (error: unknown) {
-      next(error);
     }
+
+    next();
   };
 };
