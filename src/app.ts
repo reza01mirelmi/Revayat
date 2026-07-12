@@ -23,6 +23,17 @@ app.use(express.urlencoded({ extended: true }));
 // Static files
 app.use("/uploads", express.static("uploads"));
 
+// Welcome route
+app.get("/", (req: Request, res: Response) => {
+  res.status(200).json({
+    name: "Ravayat API",
+    version: "1.0.0",
+    status: "running",
+    health: "/health",
+    docs: "https://github.com/reza01mirelmi/Revayat",
+  });
+});
+
 // Health check
 app.get("/health", (req: Request, res: Response) => {
   res.status(200).json({
