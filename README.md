@@ -1,7 +1,7 @@
 # Ravayat (روایت)
 
 > A platform for sharing and discovering personal experiences — built with Node.js, TypeScript, and PostgreSQL.
-
+🌐 **Live API:** https://revayat.onrender.com
 ---
 
 ## Features
