@@ -40,19 +40,20 @@
 src/
 ├── config/           # Database and environment config
 ├── errors/           # Custom AppError class
-├── generated/         # Prisma generated client
-├── middlewares/       # Auth, validation, rate limiting, param validation
+├── generated/        # Prisma generated client
+├── middlewares/      # Auth, validation, rate limiting, param validation
 ├── modules/
-│   ├── auth/          # Register, login, refresh, logout
-│   ├── user/           # Profile, update, admin user management
-│   ├── post/           # CRUD, search, filter, related posts
-│   ├── category/       # Category management
-│   ├── tag/            # Tag management
-│   ├── comment/        # Nested comments on posts
-│   ├── like/            # Toggle like on posts
-│   └── bookmark/    # Save and manage bookmarks
-├── routes/            # Central router
-└── utils/             # JWT utilities
+│   ├── auth/         # Register, login, refresh, logout
+│   ├── user/         # Profile, update, admin user management
+│   ├── post/         # CRUD, search, filter, related posts
+│   ├── category/     # Category management
+│   ├── tag/          # Tag management
+│   ├── comment/      # Nested comments on posts
+│   ├── like/         # Toggle like on posts
+│   └── bookmark/     # Save and manage bookmarks
+├── routes/           # Central router
+├── types/            # Global TypeScript type declarations
+└── utils/            # JWT utilities
 ```
 
 ---
