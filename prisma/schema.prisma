@@ -15,17 +15,18 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  username     String   @unique
-  email        String   @unique
-  passwordHash String
-  bio          String?
-  avatarUrl    String?
-  role         Role     @default(USER)
-  isActive     Boolean  @default(true)
-  isBanned     Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id             String   @id @default(uuid())
+  username       String   @unique
+  email          String   @unique
+  passwordHash   String
+  bio            String?
+  avatarUrl      String?
+  avatarPublicId String?
+  role           Role     @default(USER)
+  isActive       Boolean  @default(true)
+  isBanned       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   posts        Post[]
   comments     Comment[]
@@ -71,13 +72,15 @@ model Tag {
 }
 
 model Post {
-  id         String     @id @default(uuid())
-  title      String
-  content    String
-  viewsCount Int        @default(0)
-  status     PostStatus @default(DRAFT)
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  id            String     @id @default(uuid())
+  title         String
+  content       String
+  viewsCount    Int        @default(0)
+  status        PostStatus @default(DRAFT)
+  coverUrl      String?
+  coverPublicId String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
 
   userId     String
   categoryId String

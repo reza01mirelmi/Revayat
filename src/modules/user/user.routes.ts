@@ -3,6 +3,7 @@ import {
   getUserProfile,
   getUserPosts,
   updateMe,
+  uploadAvatar,
   changePassword,
   deleteMe,
   getAllUsers,
@@ -21,10 +22,12 @@ import {
 } from "./user.validation";
 import { protect, restrictTo } from "./../../middlewares/auth.middleware";
 import { validateId } from "../../middlewares/validateId.middleware";
+import { upload } from "../../config/multer";
 const router = Router();
 
 // User Routes (Login required)
 router.patch("/me", protect, validate(updateProfileSchema), updateMe);
+router.patch("/me/avatar", protect, upload.single("avatar"), uploadAvatar);
 router.patch(
   "/me/password",
   protect,
