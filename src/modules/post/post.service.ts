@@ -6,6 +6,7 @@ import {
   UpdatePostStatusInput,
 } from "./post.validation";
 import { PostStatus } from "../../generated/prisma";
+import { deleteFromCloudinary } from "../../utils/cloudinary-upload";
 
 /**
  * Create a new post.
@@ -13,6 +14,8 @@ import { PostStatus } from "../../generated/prisma";
 export const createPostService = async (
   userId: string,
   data: CreatePostInput,
+  coverUrl?: string,
+  coverPublicId?: string,
 ) => {
   const category = await prisma.category.findUnique({
     where: { id: data.categoryId },
@@ -38,10 +41,12 @@ export const createPostService = async (
       content: data.content,
       categoryId: data.categoryId,
       userId,
+      coverUrl,
+      coverPublicId,
       tags: data.tags
         ? {
-          connect: data.tags.map((id) => ({ id })),
-        }
+            connect: data.tags.map((id) => ({ id })),
+          }
         : undefined,
     },
     select: {
@@ -50,6 +55,7 @@ export const createPostService = async (
       content: true,
       status: true,
       viewsCount: true,
+      coverUrl: true,
       createdAt: true,
       category: { select: { id: true, name: true, slug: true } },
       tags: { select: { id: true, name: true, slug: true } },
@@ -105,6 +111,8 @@ export const updatePostService = async (
   userId: string,
   id: string,
   data: UpdatePostInput,
+  coverUrl?: string,
+  coverPublicId?: string,
 ) => {
   const post = await prisma.post.findUnique({
     where: { id, userId },
@@ -135,11 +143,13 @@ export const updatePostService = async (
       ...(data.title !== undefined && { title: data.title }),
       ...(data.content !== undefined && { content: data.content }),
       ...(data.categoryId !== undefined && { categoryId: data.categoryId }),
+      ...(coverUrl !== undefined && { coverUrl }),
+      ...(coverPublicId !== undefined && { coverPublicId }),
       ...(data.tags !== undefined && {
         tags: data.tags
           ? {
-            set: data.tags.map((id) => ({ id })),
-          }
+              set: data.tags.map((id) => ({ id })),
+            }
           : undefined,
       }),
     },
@@ -149,11 +159,20 @@ export const updatePostService = async (
       content: true,
       status: true,
       viewsCount: true,
+      coverUrl: true,
       createdAt: true,
       category: { select: { id: true, name: true, slug: true } },
       tags: { select: { id: true, name: true, slug: true } },
     },
   });
+
+  if (
+    coverPublicId &&
+    post.coverPublicId &&
+    post.coverPublicId !== coverPublicId
+  ) {
+    await deleteFromCloudinary(post.coverPublicId);
+  }
 
   return updatedPost;
 };
@@ -186,11 +205,11 @@ export const getAllPostsService = async (
     ...(!isAdmin && { status: PostStatus.PUBLISHED }),
     ...(search
       ? {
-        OR: [
-          { title: { contains: search, mode: "insensitive" as const } },
-          { content: { contains: search, mode: "insensitive" as const } },
-        ],
-      }
+          OR: [
+            { title: { contains: search, mode: "insensitive" as const } },
+            { content: { contains: search, mode: "insensitive" as const } },
+          ],
+        }
       : {}),
   };
   const skip = (page - 1) * limit;
@@ -274,11 +293,11 @@ export const getPostsByFilterService = async (
     ...(filter.tagSlug && { tags: { some: { slug: filter.tagSlug } } }),
     ...(search
       ? {
-        OR: [
-          { title: { contains: search, mode: "insensitive" as const } },
-          { content: { contains: search, mode: "insensitive" as const } },
-        ],
-      }
+          OR: [
+            { title: { contains: search, mode: "insensitive" as const } },
+            { content: { contains: search, mode: "insensitive" as const } },
+          ],
+        }
       : {}),
   };
 

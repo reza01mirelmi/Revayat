@@ -1,4 +1,5 @@
 import { AppError } from "../../errors/AppError";
+import { deleteFromCloudinary } from "../../utils/cloudinary-upload";
 import { prisma } from "./../../config/db";
 import {
   UpdateProfileInput,
@@ -48,26 +49,49 @@ export const getUserPostsService = async (username: string) => {
  */
 export const updateMyProfileService = async (
   userId: string,
-  data: UpdateProfileInput,
+  data: UpdateProfileInput & { avatarPublicId?: string },
 ) => {
   if (data.username) {
-    const existingUser = await prisma.user.findUnique({
+    const existingUsername = await prisma.user.findUnique({
       where: { username: data.username },
     });
 
-    if (existingUser && existingUser.id !== userId) {
+    if (existingUsername && existingUsername.id !== userId) {
       throw new AppError("Username already taken", 400);
     }
   }
+
+  const existingUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { avatarPublicId: true },
+  });
+
   const updateUser = await prisma.user.update({
     where: { id: userId },
     data: {
       ...(data.username !== undefined && { username: data.username }),
       ...(data.bio !== undefined && { bio: data.bio }),
       ...(data.avatarUrl !== undefined && { avatarUrl: data.avatarUrl }),
+      ...(data.avatarPublicId !== undefined && {
+        avatarPublicId: data.avatarPublicId,
+      }),
     },
-    select: { username: true, bio: true, avatarUrl: true, createdAt: true },
+    select: {
+      username: true,
+      bio: true,
+      avatarUrl: true,
+      avatarPublicId: true,
+      createdAt: true,
+    },
   });
+
+  if (
+    data.avatarPublicId &&
+    existingUser?.avatarPublicId &&
+    existingUser.avatarPublicId !== data.avatarPublicId
+  ) {
+    await deleteFromCloudinary(existingUser.avatarPublicId);
+  }
 
   return updateUser;
 };

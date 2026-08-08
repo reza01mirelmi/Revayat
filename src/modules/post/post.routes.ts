@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { upload } from "../../config/multer";
 import {
   createPost,
   getMyPosts,
@@ -22,16 +23,26 @@ import {
 } from "./post.validation";
 import { protect, restrictTo } from "../../middlewares/auth.middleware";
 import { validateId } from "../../middlewares/validateId.middleware";
+import { parseFormArrays } from "../../middlewares/parseFormArrays.middleware";
 
 const router = Router();
 
 // ===== User Routes (Login required) =====
-router.post("/", protect, validate(createPostSchema), createPost);
+router.post(
+  "/",
+  protect,
+  upload.single("cover"),
+  parseFormArrays(["tags"]),
+  validate(createPostSchema),
+  createPost,
+);
 router.get("/me", protect, getMyPosts);
 router.patch(
   "/me/:id",
   protect,
   validateId,
+  upload.single("cover"),
+  parseFormArrays(["tags"]),
   validate(updatePostSchema),
   updatePost,
 );

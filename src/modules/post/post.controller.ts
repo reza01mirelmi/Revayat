@@ -11,6 +11,8 @@ import {
   updatePostStatusService,
 } from "./post.service";
 import { AppError } from "../../errors/AppError";
+import { verifyRealImageType } from "../../utils/verify-image";
+import { uploadBufferToCloudinary } from "../../utils/cloudinary-upload";
 import {
   CreatePostInput,
   UpdatePostInput,
@@ -27,7 +29,30 @@ export const createPost = async (
 
     const data: CreatePostInput = req.body;
 
-    const post = await createPostService(req.userId, data);
+    let coverUrl: string | undefined;
+    let coverPublicId: string | undefined;
+
+    if (req.file) {
+      const isValidImage = await verifyRealImageType(req.file.buffer);
+      if (!isValidImage) {
+        throw new AppError("The uploaded file is not a valid image.", 400);
+      }
+
+      const result = await uploadBufferToCloudinary(req.file.buffer, {
+        folder: "revayat/posts",
+        transformation: [{ width: 1200, height: 630, crop: "fill" }],
+      });
+
+      coverUrl = result.secure_url;
+      coverPublicId = result.public_id;
+    }
+
+    const post = await createPostService(
+      req.userId,
+      data,
+      coverUrl,
+      coverPublicId,
+    );
 
     res.status(201).json({
       status: "success",
@@ -37,7 +62,6 @@ export const createPost = async (
     next(error);
   }
 };
-
 export const getMyPosts = async (
   req: Request,
   res: Response,
@@ -72,7 +96,35 @@ export const updatePost = async (
     const { id } = req.params as { id: string };
     const data: UpdatePostInput = req.body;
 
-    const updatedPost = await updatePostService(userId, id, data);
+    if (Object.keys(data).length === 0 && !req.file) {
+      throw new AppError("At least one field is required for update", 400);
+    }
+
+    let coverUrl: string | undefined;
+    let coverPublicId: string | undefined;
+
+    if (req.file) {
+      const isValidImage = await verifyRealImageType(req.file.buffer);
+      if (!isValidImage) {
+        throw new AppError("The uploaded file is not a valid image.", 400);
+      }
+
+      const result = await uploadBufferToCloudinary(req.file.buffer, {
+        folder: "revayat/posts",
+        transformation: [{ width: 1200, height: 630, crop: "fill" }],
+      });
+
+      coverUrl = result.secure_url;
+      coverPublicId = result.public_id;
+    }
+
+    const updatedPost = await updatePostService(
+      userId,
+      id,
+      data,
+      coverUrl,
+      coverPublicId,
+    );
 
     res.status(200).json({
       status: "success",

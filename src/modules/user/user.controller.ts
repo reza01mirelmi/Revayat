@@ -13,6 +13,8 @@ import {
 } from "./user.service";
 import { AppError } from "../../errors/AppError";
 import { UpdateRoleInput } from "./user.validation";
+import { verifyRealImageType } from "../../utils/verify-image";
+import { uploadBufferToCloudinary } from "../../utils/cloudinary-upload";
 
 export const getUserProfile = async (
   req: Request,
@@ -60,6 +62,41 @@ export const updateMe = async (
     res.status(200).json({
       status: "success",
       data: updateUser,
+    });
+  } catch (error: unknown) {
+    next(error);
+  }
+};
+
+export const uploadAvatar = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    if (!req.userId) throw new AppError("Unauthorized", 401);
+    if (!req.file) throw new AppError("No file was provided.", 400);
+
+    const isValidImage = await verifyRealImageType(req.file.buffer);
+    if (!isValidImage) {
+      throw new AppError("The uploaded file is not a valid image.", 400);
+    }
+
+    const result = await uploadBufferToCloudinary(req.file.buffer, {
+      folder: "revayat/avatars",
+      transformation: [
+        { width: 400, height: 400, crop: "fill", gravity: "face" },
+      ],
+    });
+
+    const updatedUser = await updateMyProfileService(req.userId, {
+      avatarUrl: result.secure_url,
+      avatarPublicId: result.public_id,
+    });
+
+    res.status(200).json({
+      status: "success",
+      data: updatedUser,
     });
   } catch (error: unknown) {
     next(error);
