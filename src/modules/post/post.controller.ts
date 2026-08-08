@@ -96,6 +96,10 @@ export const updatePost = async (
     const { id } = req.params as { id: string };
     const data: UpdatePostInput = req.body;
 
+    if (Object.keys(data).length === 0 && !req.file) {
+      throw new AppError("At least one field is required for update", 400);
+    }
+
     let coverUrl: string | undefined;
     let coverPublicId: string | undefined;
 

@@ -44,9 +44,6 @@ export const updatePostSchema = z
       .max(5, "You can add up to 5 tags")
       .optional(),
   })
-  .refine((data) => Object.keys(data).length > 0, {
-    message: "At least one field is required for update",
-  });
 
 export const updatePostStatusSchema = z.object({
   status: z.enum(["DRAFT", "PUBLISHED", "BANNED"], {
