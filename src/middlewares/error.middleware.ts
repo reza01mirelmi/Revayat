@@ -1,12 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { MulterError } from "multer";
-
-interface AppError extends Error {
-  statusCode?: number;
-}
+import { AppError } from "../errors/AppError";
 
 export const errorHandler = (
-  err: AppError,
+  err: Error & { statusCode?: number },
   req: Request,
   res: Response,
   next: NextFunction,
@@ -19,11 +16,16 @@ export const errorHandler = (
     });
   }
 
-  const statusCode = err.statusCode || 500;
+  if (err instanceof AppError) {
+    console.error(err);
+    return res.status(err.statusCode).json({
+      success: false,
+      message: err.message,
+    });
+  }
 
   console.error(err);
-
-  res.status(statusCode).json({
+  res.status(500).json({
     success: false,
     message:
       process.env.NODE_ENV === "production"
