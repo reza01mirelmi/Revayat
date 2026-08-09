@@ -10,7 +10,19 @@ const app = express();
 
 // Security
 app.use(helmet());
-app.use(cors());
+
+// CORS
+const allowedOrigins = [
+  process.env.NODE_ENV !== "production" && "http://localhost:3000",
+  process.env.FRONTEND_URL,
+].filter((origin): origin is string => Boolean(origin));
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  }),
+);
 app.use(globalLimiter);
 
 // Parse cookies
