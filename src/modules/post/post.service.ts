@@ -253,6 +253,7 @@ export const getPostByIdService = async (id: string) => {
       id: true,
       title: true,
       content: true,
+      coverUrl: true,
       viewsCount: true,
       createdAt: true,
       category: { select: { id: true, name: true, slug: true } },
@@ -362,6 +363,7 @@ export const getRelatedPostsService = async (postId: string) => {
       title: true,
       viewsCount: true,
       createdAt: true,
+      category: { select: { name: true } },
       author: { select: { username: true, avatarUrl: true } },
     },
   });
