@@ -187,7 +187,7 @@ export const getPostById = async (
   try {
     const { id } = req.params as { id: string };
 
-    const post = await getPostByIdService(id);
+    const post = await getPostByIdService(id, req.userId);
 
     res.status(200).json({
       status: "success",

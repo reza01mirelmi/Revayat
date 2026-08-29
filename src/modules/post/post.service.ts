@@ -246,7 +246,7 @@ export const getAllPostsService = async (
 /**
  * Get a single post by its ID.
  */
-export const getPostByIdService = async (id: string) => {
+export const getPostByIdService = async (id: string, userId?: string) => {
   const post = await prisma.post.findUnique({
     where: { id, status: PostStatus.PUBLISHED },
     select: {
@@ -259,6 +259,9 @@ export const getPostByIdService = async (id: string) => {
       category: { select: { id: true, name: true, slug: true } },
       tags: { select: { id: true, name: true, slug: true } },
       author: { select: { id: true, username: true, avatarUrl: true } },
+      _count: { select: { likes: true, comments: true } },
+      likes: userId ? { where: { userId }, select: { id: true } } : false,
+      bookmarks: userId ? { where: { userId }, select: { id: true } } : false,
     },
   });
 
@@ -272,6 +275,10 @@ export const getPostByIdService = async (id: string) => {
   return {
     ...post,
     viewsCount: post.viewsCount + 1,
+    likeCount: post._count.likes,
+    commentCount: post._count.comments,
+    isLiked: (post.likes?.length ?? 0) > 0,
+    isBookmarked: (post.bookmarks?.length ?? 0) > 0,
   };
 };
 
