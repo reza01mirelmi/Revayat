@@ -24,6 +24,7 @@ import {
 import { protect, restrictTo } from "../../middlewares/auth.middleware";
 import { validateId } from "../../middlewares/validateId.middleware";
 import { parseFormArrays } from "../../middlewares/parseFormArrays.middleware";
+import { optionalAuth } from "../../middlewares/optionalAuth.middleware";
 
 const router = Router();
 
@@ -71,6 +72,6 @@ router.get("/", getAllPosts);
 router.get("/category/:categorySlug", getPostsByCategory);
 router.get("/tag/:tagSlug", getPostsByTag);
 router.get("/:id/related", validateId, getRelatedPosts);
-router.get("/:id", validateId, getPostById);
+router.get("/:id", validateId, optionalAuth, getPostById);
 
 export default router;
