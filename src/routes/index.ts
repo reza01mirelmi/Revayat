@@ -12,10 +12,10 @@ const router = Router();
 
 router.use("/auth", authRoutes);
 router.use("/users", userRoutes);
-router.use("/posts", postRoutes);
 router.use("/posts", commentRoutes);
 router.use("/posts", likeRoutes);
 router.use("/posts", bookmarkRoutes);
+router.use("/posts", postRoutes);
 router.use("/categories", categoryRoutes);
 router.use("/tags", tagRoutes);
 
