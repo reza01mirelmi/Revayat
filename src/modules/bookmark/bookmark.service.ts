@@ -50,6 +50,8 @@ export const getMyBookmarksService = async (
               title: true,
               viewsCount: true,
               createdAt: true,
+              coverUrl: true,
+              category: { select: { name: true } },
               author: { select: { id: true, username: true, avatarUrl: true } },
             },
           },

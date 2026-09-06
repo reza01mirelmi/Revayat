@@ -66,3 +66,50 @@ export const getPostLikesService = async (
     totalPages: Math.ceil(total / limit),
   };
 };
+
+export const getMyLikesService = async (
+  userId: string,
+  page: number,
+  limit: number,
+) => {
+  const skip = (page - 1) * limit;
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      likes: {
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          createdAt: true,
+          post: {
+            select: {
+              id: true,
+              title: true,
+              viewsCount: true,
+              createdAt: true,
+              coverUrl: true,
+              category: { select: { name: true } },
+              author: { select: { id: true, username: true, avatarUrl: true } },
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      },
+      _count: { select: { likes: true } },
+    },
+  });
+
+  if (!user) throw new AppError("User not found", 404);
+
+  const total = user._count.likes;
+
+  return {
+    likes: user.likes,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
+};
