@@ -200,6 +200,7 @@ export const getAllPostsService = async (
   limit: number,
   search?: string,
   isAdmin?: boolean,
+  sort?: "latest" | "popular",
 ) => {
   const where = {
     ...(!isAdmin && { status: PostStatus.PUBLISHED }),
@@ -213,6 +214,11 @@ export const getAllPostsService = async (
       : {}),
   };
   const skip = (page - 1) * limit;
+
+  const orderBy =
+    sort === "popular"
+      ? { likes: { _count: "desc" as const } }
+      : { createdAt: "desc" as const };
 
   const [total, posts] = await prisma.$transaction([
     prisma.post.count({ where }),
@@ -232,7 +238,7 @@ export const getAllPostsService = async (
         author: { select: { id: true, username: true, avatarUrl: true } },
         _count: { select: { likes: true, comments: true } },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy,
     }),
   ]);
 
@@ -296,6 +302,7 @@ export const getPostsByFilterService = async (
   page: number,
   limit: number,
   search?: string,
+  sort?: "latest" | "popular",
 ) => {
   const where = {
     status: PostStatus.PUBLISHED,
@@ -312,6 +319,11 @@ export const getPostsByFilterService = async (
   };
 
   const skip = (page - 1) * limit;
+
+  const orderBy =
+    sort === "popular"
+      ? { likes: { _count: "desc" as const } }
+      : { createdAt: "desc" as const };
 
   const [total, posts] = await prisma.$transaction([
     prisma.post.count({ where }),
@@ -330,7 +342,7 @@ export const getPostsByFilterService = async (
         author: { select: { id: true, username: true, avatarUrl: true } },
         _count: { select: { likes: true, comments: true } },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy,
     }),
   ]);
 

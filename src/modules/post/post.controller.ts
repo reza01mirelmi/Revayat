@@ -167,8 +167,9 @@ export const getAllPosts = async (
     const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 50);
     const search =
       typeof req.query.search === "string" ? req.query.search : undefined;
+    const sort = req.query.sort === "popular" ? "popular" : "latest";
 
-    const posts = await getAllPostsService(page, limit, search, false);
+    const posts = await getAllPostsService(page, limit, search, false, sort);
 
     res.status(200).json({
       status: "success",
@@ -209,12 +210,14 @@ export const getPostsByCategory = async (
     const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 50);
     const search =
       typeof req.query.search === "string" ? req.query.search : undefined;
+    const sort = req.query.sort === "popular" ? "popular" : "latest";
 
     const posts = await getPostsByFilterService(
       { categorySlug },
       page,
       limit,
       search,
+      sort,
     );
 
     res.status(200).json({
@@ -237,12 +240,14 @@ export const getPostsByTag = async (
     const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 50);
     const search =
       typeof req.query.search === "string" ? req.query.search : undefined;
+    const sort = req.query.sort === "popular" ? "popular" : "latest";
 
     const posts = await getPostsByFilterService(
       { tagSlug },
       page,
       limit,
       search,
+      sort,
     );
 
     res.status(200).json({
