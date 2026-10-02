@@ -288,3 +288,52 @@ export const deleteUserService = async (userId: string) => {
     where: { userId },
   });
 };
+
+/**
+ * Get top authors ranked by total likes and published posts count
+ */
+export const getTopAuthorsService = async (limit: number) => {
+  const users = await prisma.user.findMany({
+    where: {
+      isActive: true,
+      isBanned: false,
+    },
+    select: {
+      id: true,
+      username: true,
+      avatarUrl: true,
+      bio: true,
+      posts: {
+        where: { status: "PUBLISHED" },
+        select: {
+          _count: {
+            select: { likes: true },
+          },
+        },
+      },
+    },
+  });
+
+  const authorsWithStats = users
+    .map((user) => {
+      const postsCount = user.posts.length;
+      const totalLikes = user.posts.reduce(
+        (sum, post) => sum + post._count.likes,
+        0,
+      );
+
+      return {
+        id: user.id,
+        username: user.username,
+        avatarUrl: user.avatarUrl,
+        bio: user.bio,
+        postsCount,
+        totalLikes,
+      };
+    })
+    .filter((author) => author.postsCount > 0)
+    .sort((a, b) => b.totalLikes - a.totalLikes || b.postsCount - a.postsCount)
+    .slice(0, limit);
+
+  return authorsWithStats;
+};
