@@ -4,6 +4,7 @@ import {
   deleteMyAccountService,
   deleteUserService,
   getAllUsersService,
+  getTopAuthorsService,
   getUserByIdService,
   getUserPostsService,
   getUserProfileService,
@@ -261,5 +262,19 @@ export const deleteUser = async (
     });
   } catch (error: unknown) {
     next(error);
+  }
+};
+
+export const getTopAuthorsController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 50);
+    const authors = await getTopAuthorsService(limit);
+    res.status(200).json({ success: true, data: authors });
+  } catch (err) {
+    next(err);
   }
 };
