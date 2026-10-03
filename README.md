@@ -26,7 +26,7 @@
 | Runtime | Node.js |
 | Framework | Express.js |
 | Language | TypeScript |
-| Database | PostgreSQL (Neon) |
+| Database | PostgreSQL |
 | ORM | Prisma |
 | Validation | Zod |
 | Authentication | JWT (Access + Refresh Token) |
