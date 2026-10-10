@@ -1,4 +1,5 @@
 import { AppError } from "../../errors/AppError";
+import { PostStatus } from "../../generated/prisma";
 import { deleteFromCloudinary } from "../../utils/cloudinary-upload";
 import { prisma } from "./../../config/db";
 import {
@@ -10,8 +11,8 @@ import bcrypt from "bcrypt";
 
 // View user profile publicly
 export const getUserProfileService = async (username: string) => {
-  const user = await prisma.user.findUnique({
-    where: { username },
+  const user = await prisma.user.findFirst({
+    where: { username, isActive: true, isBanned: false },
     select: { username: true, bio: true, avatarUrl: true, createdAt: true },
   });
 
@@ -21,27 +22,53 @@ export const getUserProfileService = async (username: string) => {
 };
 
 /**
- * Receive user posts
+ * Receive user posts (public, paginated, published only)
  */
-export const getUserPostsService = async (username: string) => {
-  const user = await prisma.user.findUnique({
-    where: { username },
-    select: {
-      posts: {
-        select: {
-          id: true,
-          title: true,
-          content: true,
-          viewsCount: true,
-          createdAt: true,
-        },
-      },
-    },
+export const getUserPostsService = async (
+  username: string,
+  page: number,
+  limit: number,
+) => {
+  const user = await prisma.user.findFirst({
+    where: { username, isActive: true, isBanned: false },
   });
-
   if (!user) throw new AppError("User not found", 404);
 
-  return user.posts;
+  const where = {
+    userId: user.id,
+    status: PostStatus.PUBLISHED,
+  };
+  const skip = (page - 1) * limit;
+
+  const [total, posts] = await prisma.$transaction([
+    prisma.post.count({ where }),
+    prisma.post.findMany({
+      where,
+      skip,
+      take: limit,
+      select: {
+        id: true,
+        title: true,
+        status: true,
+        viewsCount: true,
+        coverUrl: true,
+        createdAt: true,
+        category: { select: { id: true, name: true, slug: true } },
+        tags: { select: { id: true, name: true, slug: true } },
+        author: { select: { id: true, username: true, avatarUrl: true } },
+        _count: { select: { likes: true, comments: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
+
+  return {
+    posts,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
 };
 
 /**
