@@ -4,6 +4,7 @@ import {
   getUserPosts,
   updateMe,
   uploadAvatar,
+  deleteAvatar,
   changePassword,
   deleteMe,
   getAllUsers,
@@ -29,6 +30,7 @@ const router = Router();
 // User Routes (Login required)
 router.patch("/me", protect, validate(updateProfileSchema), updateMe);
 router.patch("/me/avatar", protect, upload.single("avatar"), uploadAvatar);
+router.delete("/me/avatar", protect, deleteAvatar);
 router.patch(
   "/me/password",
   protect,

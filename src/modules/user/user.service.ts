@@ -124,6 +124,37 @@ export const updateMyProfileService = async (
 };
 
 /**
+ * Remove the user's avatar from Cloudinary and the database
+ */
+export const deleteMyAvatarService = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { avatarPublicId: true },
+  });
+
+  if (!user) throw new AppError("User not found", 404);
+
+  if (user.avatarPublicId) {
+    try {
+      await deleteFromCloudinary(user.avatarPublicId);
+    } catch (err) {
+      console.error("Cloudinary delete failed:", err);
+    }
+  }
+
+  return await prisma.user.update({
+    where: { id: userId },
+    data: { avatarUrl: null, avatarPublicId: null },
+    select: {
+      username: true,
+      bio: true,
+      avatarUrl: true,
+      createdAt: true,
+    },
+  });
+};
+
+/**
  * Allows authenticated user to change their password
  */
 export const changePasswordService = async (
