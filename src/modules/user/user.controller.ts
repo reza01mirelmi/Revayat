@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import {
   changePasswordService,
   deleteMyAccountService,
+  deleteMyAvatarService,
   deleteUserService,
   getAllUsersService,
   getTopAuthorsService,
@@ -95,6 +96,25 @@ export const uploadAvatar = async (
       avatarUrl: result.secure_url,
       avatarPublicId: result.public_id,
     });
+
+    res.status(200).json({
+      status: "success",
+      data: updatedUser,
+    });
+  } catch (error: unknown) {
+    next(error);
+  }
+};
+
+export const deleteAvatar = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    if (!req.userId) throw new AppError("Unauthorized", 401);
+
+    const updatedUser = await deleteMyAvatarService(req.userId);
 
     res.status(200).json({
       status: "success",
@@ -274,8 +294,8 @@ export const getTopAuthorsController = async (
   try {
     const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 50);
     const authors = await getTopAuthorsService(limit);
-    res.status(200).json({ success: true, data: authors });
-  } catch (err) {
-    next(err);
+    res.status(200).json({ status: "success", data: authors });
+  } catch (error: unknown) {
+    next(error);
   }
 };
