@@ -88,6 +88,8 @@ export const getMyPostsService = async (
         status: true,
         viewsCount: true,
         createdAt: true,
+        coverUrl: true,
+        _count: { select: { likes: true, comments: true } },
         category: { select: { id: true, name: true, slug: true } },
         tags: { select: { id: true, name: true, slug: true } },
       },
