@@ -3,10 +3,13 @@ import { Request, Response, NextFunction } from "express";
 export function parseFormArrays(fields: string[]) {
   return (req: Request, _res: Response, next: NextFunction) => {
     for (const field of fields) {
-      if (typeof req.body[field] === "string") {
-        try {
-          req.body[field] = JSON.parse(req.body[field]);
-        } catch {}
+      const value = req.body[field];
+      if (typeof value !== "string") continue;
+      try {
+        const parsed = JSON.parse(value);
+        req.body[field] = Array.isArray(parsed) ? parsed : [value];
+      } catch {
+        req.body[field] = [value];
       }
     }
     next();
