@@ -9,6 +9,7 @@ import {
   getPostsByFilterService,
   getRelatedPostsService,
   updatePostStatusService,
+  getMyPostByIdService,
 } from "./post.service";
 import { AppError } from "../../errors/AppError";
 import { verifyRealImageType } from "../../utils/verify-image";
@@ -78,6 +79,26 @@ export const getMyPosts = async (
     res.status(200).json({
       status: "success",
       data: posts,
+    });
+  } catch (error: unknown) {
+    next(error);
+  }
+};
+
+export const getMyPostById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    if (!req.userId) throw new AppError("Unauthorized", 401);
+
+    const { id } = req.params as { id: string };
+    const post = await getMyPostByIdService(req.userId, id);
+
+    res.status(200).json({
+      status: "success",
+      data: post,
     });
   } catch (error: unknown) {
     next(error);

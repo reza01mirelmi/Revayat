@@ -13,6 +13,7 @@ import {
   getAllPostsAdmin,
   deletePostAdmin,
   updatePostStatus,
+  getMyPostById,
 } from "./post.controller";
 
 import { validate } from "../../middlewares/validate.middleware";
@@ -38,6 +39,7 @@ router.post(
   createPost,
 );
 router.get("/me", protect, getMyPosts);
+router.get("/me/:id", protect, validateId, getMyPostById);
 router.patch(
   "/me/:id",
   protect,

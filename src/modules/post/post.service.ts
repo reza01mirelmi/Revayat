@@ -41,6 +41,7 @@ export const createPostService = async (
       content: data.content,
       categoryId: data.categoryId,
       userId,
+      status: PostStatus.PUBLISHED,
       coverUrl,
       coverPublicId,
       tags: data.tags
@@ -104,6 +105,29 @@ export const getMyPostsService = async (
     limit,
     totalPages: Math.ceil(total / limit),
   };
+};
+
+/**
+ * Get a single post owned by the authenticated user (any status).
+ */
+export const getMyPostByIdService = async (userId: string, id: string) => {
+  const post = await prisma.post.findUnique({
+    where: { id, userId },
+    select: {
+      id: true,
+      title: true,
+      content: true,
+      status: true,
+      coverUrl: true,
+      createdAt: true,
+      category: { select: { id: true, name: true, slug: true } },
+      tags: { select: { id: true, name: true, slug: true } },
+    },
+  });
+
+  if (!post) throw new AppError("Post not found", 404);
+
+  return post;
 };
 
 /**
