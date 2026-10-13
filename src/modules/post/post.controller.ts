@@ -3,13 +3,14 @@ import {
   createPostService,
   getMyPostsService,
   updatePostService,
-  deletePostService,
   getAllPostsService,
   getPostByIdService,
   getPostsByFilterService,
   getRelatedPostsService,
   updatePostStatusService,
   getMyPostByIdService,
+  deleteMyPostService,
+  deletePostAsAdminService,
 } from "./post.service";
 import { AppError } from "../../errors/AppError";
 import { verifyRealImageType } from "../../utils/verify-image";
@@ -167,7 +168,7 @@ export const deletePost = async (
     const userId = req.userId;
     const { id } = req.params as { id: string };
 
-    await deletePostService(id, userId);
+    await deleteMyPostService(userId, id);
 
     res.status(200).json({
       status: "success",
@@ -329,7 +330,7 @@ export const deletePostAdmin = async (
   try {
     const { id } = req.params as { id: string };
 
-    await deletePostService(id);
+    await deletePostAsAdminService(id);
 
     res.status(200).json({
       status: "success",

@@ -197,24 +197,51 @@ export const updatePostService = async (
     post.coverPublicId &&
     post.coverPublicId !== coverPublicId
   ) {
-    await deleteFromCloudinary(post.coverPublicId);
+    try {
+      await deleteFromCloudinary(post.coverPublicId);
+    } catch (err) {
+      console.error("Cloudinary delete failed:", err);
+    }
   }
 
   return updatedPost;
 };
 
-/**
- * Delete a post. If userId is provided, only deletes if owned by that user.
- * If userId is omitted (admin use), deletes the post regardless of owner.
- */
-export const deletePostService = async (id: string, userId?: string) => {
-  const post = await prisma.post.findUnique({
-    where: userId ? { id, userId } : { id },
-  });
+async function removePost(post: { id: string; coverPublicId: string | null }) {
+  await prisma.$transaction([
+    prisma.like.deleteMany({ where: { postId: post.id } }),
+    prisma.comment.deleteMany({ where: { postId: post.id } }),
+    prisma.bookmark.deleteMany({ where: { postId: post.id } }),
+    prisma.post.delete({ where: { id: post.id } }),
+  ]);
 
+  if (post.coverPublicId) {
+    try {
+      await deleteFromCloudinary(post.coverPublicId);
+    } catch (err) {
+      console.error("Cloudinary delete failed:", err);
+    }
+  }
+}
+
+/**
+ * Delete a post owned by the given user.
+ */
+export const deleteMyPostService = async (userId: string, id: string) => {
+  const post = await prisma.post.findUnique({ where: { id, userId } });
   if (!post) throw new AppError("Post not found", 404);
 
-  await prisma.post.delete({ where: { id } });
+  await removePost(post);
+};
+
+/**
+ * Delete any post regardless of owner (Admin only).
+ */
+export const deletePostAsAdminService = async (id: string) => {
+  const post = await prisma.post.findUnique({ where: { id } });
+  if (!post) throw new AppError("Post not found", 404);
+
+  await removePost(post);
 };
 
 /**
