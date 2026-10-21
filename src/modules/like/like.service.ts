@@ -92,6 +92,8 @@ export const getMyLikesService = async (
               coverUrl: true,
               category: { select: { name: true } },
               author: { select: { id: true, username: true, avatarUrl: true } },
+              tags: { select: { id: true, name: true, slug: true } },
+              _count: { select: { likes: true, comments: true } },
             },
           },
         },
