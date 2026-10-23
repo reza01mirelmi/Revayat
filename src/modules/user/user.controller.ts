@@ -17,6 +17,7 @@ import { AppError } from "../../errors/AppError";
 import { UpdateRoleInput } from "./user.validation";
 import { verifyRealImageType } from "../../utils/verify-image";
 import { uploadBufferToCloudinary } from "../../utils/cloudinary-upload";
+import { clearCookieOptions } from "../auth/auth.controller";
 
 export const getUserProfile = async (
   req: Request,
@@ -156,7 +157,7 @@ export const deleteMe = async (
 
     await deleteMyAccountService(userId);
 
-    res.clearCookie("refreshToken");
+    res.clearCookie("refreshToken", clearCookieOptions);
 
     res.status(200).json({
       status: "success",

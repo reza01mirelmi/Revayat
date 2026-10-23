@@ -107,13 +107,22 @@ export const refreshService = async (token: string) => {
     throw new AppError("Invalid or expired refresh token", 401);
   }
 
+  const user = await prisma.user.findUnique({
+    where: { id: payload.userId },
+    select: { isActive: true, isBanned: true },
+  });
+
+  if (!user || !user.isActive || user.isBanned) {
+    throw new AppError("Invalid or expired refresh token", 401);
+  }
+
   const accessToken = generateAccessToken(payload.userId);
 
   return { accessToken };
 };
 
 export const logoutService = async (token: string) => {
-  await prisma.refreshToken.delete({
+  await prisma.refreshToken.deleteMany({
     where: { token },
   });
 };
