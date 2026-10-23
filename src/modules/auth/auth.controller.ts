@@ -8,11 +8,19 @@ import {
 } from "./auth.service";
 import { AppError } from "../../errors/AppError";
 
+const isProd = process.env.NODE_ENV === "production";
+
 const cookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax" as const,
+  secure: isProd,
+  sameSite: isProd ? ("none" as const) : ("lax" as const),
   maxAge: 7 * 24 * 60 * 60 * 1000,
+};
+
+export const clearCookieOptions = {
+  httpOnly: true,
+  secure: isProd,
+  sameSite: isProd ? ("none" as const) : ("lax" as const),
 };
 
 export const register = async (
@@ -91,7 +99,7 @@ export const logout = async (
       await logoutService(token);
     }
 
-    res.clearCookie("refreshToken");
+    res.clearCookie("refreshToken", clearCookieOptions);
 
     res.status(200).json({
       status: "success",
