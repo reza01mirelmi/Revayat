@@ -218,6 +218,10 @@ export const updateUserRole = async (
   try {
     const { id } = req.params as { id: string };
 
+    if (id === req.userId) {
+      throw new AppError("You cannot change your own role", 400);
+    }
+
     const role: UpdateRoleInput = req.body;
 
     const user = await updateUserRoleService(id, role);
@@ -238,6 +242,10 @@ export const banUser = async (
 ) => {
   try {
     const { id } = req.params as { id: string };
+
+    if (id === req.userId) {
+      throw new AppError("You cannot ban your own account", 400);
+    }
 
     const user = await toggleBanUserService(id, true);
 
@@ -276,6 +284,10 @@ export const deleteUser = async (
 ) => {
   try {
     const { id } = req.params as { id: string };
+
+    if (id === req.userId) {
+      throw new AppError("You cannot deactivate your own account", 400);
+    }
 
     await deleteUserService(id);
 
