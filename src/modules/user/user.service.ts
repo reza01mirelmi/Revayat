@@ -395,3 +395,18 @@ export const getTopAuthorsService = async (limit: number) => {
 
   return authorsWithStats;
 };
+
+/**
+ * Get platform-wide counts for the admin dashboard (Admin only)
+ */
+export const getAdminStatsService = async () => {
+  const [totalUsers, totalPosts, totalLikes, totalComments] =
+    await prisma.$transaction([
+      prisma.user.count({ where: { isActive: true } }),
+      prisma.post.count({ where: { status: PostStatus.PUBLISHED } }),
+      prisma.like.count(),
+      prisma.comment.count(),
+    ]);
+
+  return { totalUsers, totalPosts, totalLikes, totalComments };
+};

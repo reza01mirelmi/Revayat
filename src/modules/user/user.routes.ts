@@ -14,6 +14,7 @@ import {
   unbanUser,
   deleteUser,
   getTopAuthorsController,
+  getAdminStats,
 } from "./user.controller";
 import { getMyBookmarks } from "../bookmark/bookmark.controller";
 import { validate } from "../../middlewares/validate.middleware";
@@ -40,6 +41,7 @@ router.patch(
 router.delete("/me", protect, deleteMe);
 
 // Admin Routes
+router.get("/admin/stats", protect, restrictTo("ADMIN"), getAdminStats);
 router.get("/admin/users", protect, restrictTo("ADMIN"), getAllUsers);
 
 router.get(

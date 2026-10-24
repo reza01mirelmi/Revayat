@@ -4,6 +4,7 @@ import {
   deleteMyAccountService,
   deleteMyAvatarService,
   deleteUserService,
+  getAdminStatsService,
   getAllUsersService,
   getTopAuthorsService,
   getUserByIdService,
@@ -296,6 +297,23 @@ export const getTopAuthorsController = async (
     const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 50);
     const authors = await getTopAuthorsService(limit);
     res.status(200).json({ status: "success", data: authors });
+  } catch (error: unknown) {
+    next(error);
+  }
+};
+
+export const getAdminStats = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const stats = await getAdminStatsService();
+
+    res.status(200).json({
+      status: "success",
+      data: stats,
+    });
   } catch (error: unknown) {
     next(error);
   }
