@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import {
   createCommentService,
   deleteCommentService,
+  getAllCommentsAdminService,
   getAllCommentsService,
   updateCommentService,
 } from "./comment.service";
@@ -113,6 +114,30 @@ export const deleteCommentAdmin = async (
     res.status(200).json({
       status: "success",
       message: "Comment successfully deleted",
+    });
+  } catch (error: unknown) {
+    next(error);
+  }
+};
+
+export const getAllCommentsAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 50);
+    const search =
+      typeof req.query.search === "string"
+        ? req.query.search.trim() || undefined
+        : undefined;
+
+    const result = await getAllCommentsAdminService(page, limit, search);
+
+    res.status(200).json({
+      status: "success",
+      data: result,
     });
   } catch (error: unknown) {
     next(error);

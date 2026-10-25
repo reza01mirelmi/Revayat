@@ -142,3 +142,42 @@ export const getAllCommentsService = async (
     totalPages: Math.ceil(total / limit),
   };
 };
+
+/**
+ * Get all comments across all posts with pagination and search (Admin only)
+ */
+export const getAllCommentsAdminService = async (
+  page: number,
+  limit: number,
+  search?: string,
+) => {
+  const where = search
+    ? { content: { contains: search, mode: "insensitive" as const } }
+    : {};
+  const skip = (page - 1) * limit;
+
+  const [total, comments] = await prisma.$transaction([
+    prisma.comment.count({ where }),
+    prisma.comment.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        content: true,
+        createdAt: true,
+        user: { select: { id: true, username: true, avatarUrl: true } },
+        post: { select: { id: true, title: true, status: true } },
+      },
+    }),
+  ]);
+
+  return {
+    comments,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
+};
