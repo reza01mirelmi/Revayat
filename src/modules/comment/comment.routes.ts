@@ -5,6 +5,7 @@ import {
   deleteComment,
   getAllComments,
   deleteCommentAdmin,
+  getAllCommentsAdmin,
 } from "./comment.controller";
 import { validate } from "../../middlewares/validate.middleware";
 import { createCommentSchema, updateCommentSchema } from "./comment.validation";
@@ -14,6 +15,12 @@ import { validateParamId } from "../../middlewares/validateId.middleware";
 const router = Router();
 
 // ===== Admin Routes =====
+router.get(
+  "/admin/comments",
+  protect,
+  restrictTo("ADMIN"),
+  getAllCommentsAdmin,
+);
 router.delete(
   "/admin/comments/:id",
   protect,
@@ -45,7 +52,6 @@ router.delete(
   validateParamId("id"),
   deleteComment,
 );
-
 
 // ===== Public Routes =====
 router.get("/:postId/comments", validateParamId("postId"), getAllComments);
