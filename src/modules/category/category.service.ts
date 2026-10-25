@@ -114,6 +114,21 @@ export const updateCategoryService = async (
 
   if (!category) throw new AppError("Category not found", 404);
 
+  if (data.name !== undefined || data.slug !== undefined) {
+    const conflict = await prisma.category.findFirst({
+      where: {
+        id: { not: categoryId },
+        OR: [
+          ...(data.name !== undefined ? [{ name: data.name }] : []),
+          ...(data.slug !== undefined ? [{ slug: data.slug }] : []),
+        ],
+      },
+    });
+
+    if (conflict)
+      throw new AppError("Category with this name or slug already exists", 409);
+  }
+
   const updatedCategory = await prisma.category.update({
     where: { id: categoryId },
     data: {
@@ -136,9 +151,14 @@ export const updateCategoryService = async (
 export const deleteCategoryService = async (categoryId: string) => {
   const category = await prisma.category.findUnique({
     where: { id: categoryId },
+    select: { id: true, _count: { select: { posts: true } } },
   });
 
   if (!category) throw new AppError("Category not found", 404);
+
+  if (category._count.posts > 0) {
+    throw new AppError("Cannot delete a category that still has posts", 409);
+  }
 
   await prisma.category.delete({ where: { id: categoryId } });
 };

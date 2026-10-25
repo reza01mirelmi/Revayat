@@ -85,7 +85,7 @@ export const createTagService = async (data: CreateTagInput) => {
 
   if (existing)
     throw new AppError("Tag with this name or slug already exists", 409);
-  
+
   const tag = await prisma.tag.create({
     data,
     select: {
@@ -107,6 +107,21 @@ export const updateTagService = async (tagId: string, data: UpdateTagInput) => {
   });
 
   if (!tag) throw new AppError("Tag not found", 404);
+
+  if (data.name !== undefined || data.slug !== undefined) {
+    const conflict = await prisma.tag.findFirst({
+      where: {
+        id: { not: tagId },
+        OR: [
+          ...(data.name !== undefined ? [{ name: data.name }] : []),
+          ...(data.slug !== undefined ? [{ slug: data.slug }] : []),
+        ],
+      },
+    });
+
+    if (conflict)
+      throw new AppError("Tag with this name or slug already exists", 409);
+  }
 
   const updatedTag = await prisma.tag.update({
     where: { id: tagId },
