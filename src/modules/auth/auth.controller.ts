@@ -13,14 +13,16 @@ const isProd = process.env.NODE_ENV === "production";
 const cookieOptions = {
   httpOnly: true,
   secure: isProd,
-  sameSite: isProd ? ("none" as const) : ("lax" as const),
+  sameSite: "lax" as const,
+  path: "/",
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
 export const clearCookieOptions = {
   httpOnly: true,
   secure: isProd,
-  sameSite: isProd ? ("none" as const) : ("lax" as const),
+  sameSite: "lax" as const,
+  path: "/",
 };
 
 export const register = async (
