@@ -7,6 +7,7 @@ import {
 } from "./../../utils/jwt";
 import { RegisterInput, LoginInput } from "./../user/user.validation";
 import { AppError } from "../../errors/AppError";
+import { hashToken } from "../../utils/hash";
 
 // Register user
 export const registerService = async (data: RegisterInput) => {
@@ -48,7 +49,7 @@ export const registerService = async (data: RegisterInput) => {
 
   await prisma.refreshToken.create({
     data: {
-      token: refreshToken,
+      token: hashToken(refreshToken),
       userId: user.id,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     },
@@ -88,7 +89,7 @@ export const loginService = async (data: LoginInput) => {
 
   await prisma.refreshToken.create({
     data: {
-      token: refreshToken,
+      token: hashToken(refreshToken),
       userId: user.id,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     },
@@ -101,7 +102,7 @@ export const loginService = async (data: LoginInput) => {
 export const refreshService = async (token: string) => {
   const payload = verifyRefreshToken(token);
 
-  const savedToken = await prisma.refreshToken.findUnique({ where: { token } });
+  const savedToken = await prisma.refreshToken.findUnique({ where: { token : hashToken(token) } });
 
   if (!savedToken || savedToken.expiresAt < new Date()) {
     throw new AppError("Invalid or expired refresh token", 401);
@@ -123,7 +124,7 @@ export const refreshService = async (token: string) => {
 
 export const logoutService = async (token: string) => {
   await prisma.refreshToken.deleteMany({
-    where: { token },
+    where: { token : hashToken(token) },
   });
 };
 
