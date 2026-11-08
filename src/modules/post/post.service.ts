@@ -7,6 +7,7 @@ import {
 } from "./post.validation";
 import { PostStatus } from "../../generated/prisma";
 import { deleteFromCloudinary } from "../../utils/cloudinary-upload";
+import { sanitizePostContent } from "../../utils/sanitize";
 
 /**
  * Create a new post.
@@ -38,7 +39,7 @@ export const createPostService = async (
   const post = await prisma.post.create({
     data: {
       title: data.title,
-      content: data.content,
+      content: sanitizePostContent(data.content),
       categoryId: data.categoryId,
       userId,
       status: PostStatus.PUBLISHED,
@@ -167,7 +168,7 @@ export const updatePostService = async (
     where: { id, userId },
     data: {
       ...(data.title !== undefined && { title: data.title }),
-      ...(data.content !== undefined && { content: data.content }),
+      ...(data.content !== undefined && { content: sanitizePostContent(data.content) }),
       ...(data.categoryId !== undefined && { categoryId: data.categoryId }),
       ...(coverUrl !== undefined && { coverUrl }),
       ...(coverPublicId !== undefined && { coverPublicId }),
