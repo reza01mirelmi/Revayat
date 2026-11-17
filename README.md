@@ -11,7 +11,7 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-🌐 **Live API:** `https://revayat-frontend.onrender.com` · 
+🌐 **Live API:** [https://revayat-frontend.onrender.com](https://revayat-frontend.onrender.com) 
 
 </div>
 
